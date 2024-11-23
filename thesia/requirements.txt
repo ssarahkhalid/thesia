@@ -1,0 +1,9 @@
+langchain
+chromadb
+sentence-transformers
+unstructured
+pypdf
+python-docx
+llama-cpp-python
+fastapi
+uvicorn

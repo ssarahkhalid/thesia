@@ -12,7 +12,8 @@
 
 **Medications**: 
 
-**Allergies**: 
+**Allergies*****
+: 
 
 | Investigation | Results |
 | :---- | :---- |
