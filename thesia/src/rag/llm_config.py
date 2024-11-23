@@ -1,17 +1,18 @@
-from langchain_community.llms import LlamaCpp
+from langchain_openai import OpenAI  # Updated import
 from langchain.callbacks.manager import CallbackManager
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-def create_llm(model_path="models/llama-2-7b-chat.gguf"):
-    callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+def create_llm(api_key, model_name="gpt-3.5-turbo-instruct"):  # Updated model name
+    callbacks = [StreamingStdOutCallbackHandler()]  # Updated to use callbacks
     
-    llm = LlamaCpp(
-        model_path=model_path,
+    # Use the api_key parameter to initialize the OpenAI object
+    llm = OpenAI(
+        api_key=api_key,
+        model_name=model_name,
         temperature=0.7,
         max_tokens=2000,
         top_p=1,
-        callback_manager=callback_manager,
+        callbacks=callbacks,  # Updated to use callbacks
         verbose=True,
-        n_ctx=4096,
     )
-    return llm 
+    return llm

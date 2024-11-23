@@ -1,15 +1,24 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 from langchain_community.document_loaders import (
     PyPDFLoader,
     TextLoader,
     UnstructuredWordDocumentLoader
 )
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import Chroma  # Ensure this import is updated
+from langchain.embeddings import HuggingFaceEmbeddings  # Ensure this import is updated
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from thesia.src.rag.llm_config import create_llm
+from typing import Dict
+import sys
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from src.rag.llm_config import create_llm
+
+# Load environment variables from .env file
+load_dotenv()
 
 class DocumentProcessor:
     def __init__(self):
@@ -22,7 +31,7 @@ class DocumentProcessor:
         for dir in [self.data_dir, self.pdf_dir, self.notes_dir, self.vectorstore_dir]:
             dir.mkdir(parents=True, exist_ok=True)
         
-        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")  # Ensure this is updated
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=200
@@ -51,10 +60,16 @@ class DocumentProcessor:
 class RAGSystem:
     def __init__(self):
         self.processor = DocumentProcessor()
-        self.llm = create_llm()
+        # Retrieve the API key from the environment variable
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set.")
+        # Pass the API key to the create_llm function
+        self.llm = create_llm(self.api_key)  # Ensure this is updated
         self.memory = ConversationBufferMemory(
             memory_key="chat_history",
-            return_messages=True
+            return_messages=True,  # This ensures the memory returns the conversation history
+            output_key="answer"  # Explicitly set the output key for memory
         )
         self.vectorstore = None
         self.qa_chain = None
@@ -82,13 +97,14 @@ class RAGSystem:
             ),
             memory=self.memory,
             return_source_documents=True,
+            output_key="answer"  # Explicitly set the output key
         )
         
     def query(self, question: str) -> Dict:
         if not self.qa_chain:
             raise ValueError("System not initialized. Call initialize() first.")
             
-        result = self.qa_chain({"question": question})
+        result = self.qa_chain.invoke({"question": question})  # Ensure this is updated
         
         # Format sources
         sources = []
