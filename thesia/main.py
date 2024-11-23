@@ -9,7 +9,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from llm_config import create_llm
+from thesia.src.rag.llm_config import create_llm
 
 class DocumentProcessor:
     def __init__(self):
